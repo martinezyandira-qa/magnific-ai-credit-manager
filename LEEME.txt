@@ -1,0 +1,15 @@
+MAGNIFIC — CONTROL DE CRÉDITOS (PWA)
+
+Archivos:
+- index.html: aplicación
+- manifest.webmanifest: configuración instalable
+- service-worker.js: caché del shell de la app
+- icons/: iconos 192 y 512 px
+
+IMPORTANTE:
+1. La PWA debe publicarse por HTTPS; no se instala correctamente abriendo index.html como archivo local.
+2. El acceso a Google Sheets continúa pasando por el Google Apps Script configurado en index.html.
+3. El service worker NO cachea las llamadas a Google Apps Script. Los datos requieren conexión a Internet.
+4. Después de publicar una actualización del service worker, puede ser necesario cerrar y volver a abrir la app para ver la versión nueva.
+
+- logo-ccia.png: logo CCIA mostrado en la pantalla de acceso.

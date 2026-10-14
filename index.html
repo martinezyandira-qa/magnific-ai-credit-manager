@@ -1,0 +1,1735 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Contador de créditos — Magnific</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #17181A;
+    --surface: #202225;
+    --surface-2: #26282C;
+    --border: #34363B;
+    --text: #F2EFEA;
+    --muted: #98958F;
+    --amber: #E8A33D;
+    --green: #6FA97B;
+    --red: #D96C56;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 28px 20px 60px; }
+  .masthead {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    border-bottom: 1px solid var(--border); padding-bottom: 18px; margin-bottom: 22px;
+  }
+  .masthead h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .masthead p { margin: 0; color: var(--muted); font-size: 13.5px; }
+  .logo-img { display: block; height: 30px; width: auto; margin-bottom: 8px; }
+  .gear-btn {
+    background: none; border: 1px solid var(--border); color: var(--muted);
+    width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 15px;
+    display: flex; align-items: center; justify-content: center; transition: border-color .15s, color .15s;
+    flex-shrink: 0;
+  }
+  .gear-btn:hover { border-color: var(--amber); color: var(--amber); }
+  .report-btn {
+    background: none; border: 1px solid var(--border); color: var(--text);
+    height: 32px; padding: 0 14px; border-radius: 8px; cursor: pointer; font-size: 12.5px;
+    font-family: inherit; font-weight: 500; transition: border-color .15s, color .15s;
+  }
+  .report-btn:hover { border-color: var(--amber); color: var(--amber); }
+
+  .settings {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 18px; margin-bottom: 22px; display: none;
+  }
+  .settings.open { display: block; }
+  .settings label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 5px; }
+  .settings input { width: 100%; }
+  .settings .field { margin-bottom: 12px; }
+  .settings .field:last-child { margin-bottom: 0; }
+  .settings-note { font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+  .hero {
+    background: linear-gradient(160deg, var(--surface) 0%, var(--surface-2) 100%);
+    border: 1px solid var(--border); border-radius: 14px; padding: 26px 24px; margin-bottom: 18px;
+  }
+  .hero-label { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+  .hero-number-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+  .hero-number { font-family: 'JetBrains Mono', monospace; font-size: 40px; font-weight: 700; color: var(--amber); line-height: 1; }
+  .hero-of { font-family: 'JetBrains Mono', monospace; font-size: 16px; color: var(--muted); }
+  .bar-track { height: 8px; background: var(--bg); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+  .bar-fill { height: 100%; background: var(--amber); border-radius: 6px; transition: width .4s ease; }
+  .bar-fill.over { background: var(--red); }
+  .hero-sub { margin-top: 10px; font-size: 12.5px; color: var(--muted); }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px; margin-bottom: 24px; }
+  @media (min-width: 480px) { .stat-grid { grid-template-columns: repeat(3, 1fr); } }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 13px 14px; }
+  .stat-card .k { font-size: 11.5px; color: var(--muted); margin-bottom: 6px; }
+  .stat-card .v { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 500; }
+
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 18px; }
+  .panel h2 { font-size: 15px; font-weight: 600; margin: 0 0 4px; }
+  .panel .panel-sub { font-size: 12px; color: var(--muted); margin: 0; }
+
+  .panel-header {
+    display: flex; justify-content: space-between; align-items: center;
+    cursor: pointer; user-select: none;
+  }
+  .panel-header .chevron {
+    color: var(--muted); font-size: 13px; transition: transform .2s ease; flex-shrink: 0; margin-left: 12px;
+  }
+  .panel-header .chevron.collapsed { transform: rotate(-90deg); }
+  .panel-body { margin-top: 14px; }
+  .panel-body.collapsed { display: none; }
+
+  .form-row { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .form-row.wide { grid-template-columns: 1fr; }
+  .form-row.purchase { grid-template-columns: 1.2fr 0.9fr 0.9fr 0.7fr; }
+  @media (max-width: 560px) {
+    .form-row, .form-row.purchase { grid-template-columns: 1fr 1fr; }
+  }
+  .field label { display: block; font-size: 11.5px; color: var(--muted); margin-bottom: 5px; }
+  input, select, textarea {
+    width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text);
+    border-radius: 7px; padding: 9px 10px; font-family: inherit; font-size: 13.5px;
+  }
+  textarea { resize: vertical; min-height: 44px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--amber); }
+  .add-btn {
+    background: var(--amber); color: #201503; border: none; border-radius: 7px;
+    padding: 9px 16px; font-weight: 600; font-size: 13.5px; cursor: pointer; white-space: nowrap; height: 38px;
+  }
+  .add-btn:hover { filter: brightness(1.08); }
+  .add-btn.full { width: 100%; }
+
+  .log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .log-header h2 { margin: 0; }
+  .log-count { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+  #entriesList {
+    max-height: 650px;
+    overflow-y: auto;
+    padding-right: 8px;
+    scrollbar-gutter: stable;
+  }
+  #entriesList::-webkit-scrollbar { width: 9px; }
+  #entriesList::-webkit-scrollbar-track { background: var(--bg); border-radius: 999px; }
+  #entriesList::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+  #entriesList::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  .entry { display: grid; grid-template-columns: auto 1fr auto auto; gap: 12px; align-items: start; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .entry:last-child { border-bottom: none; }
+  .entry.not-used .entry-main .name { opacity: .55; text-decoration: line-through; }
+  .entry-main .name { font-size: 13.5px; font-weight: 500; }
+  .entry-main .date { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  .entry-main .shot { font-size: 12px; color: var(--text); opacity: .8; margin-top: 6px; line-height: 1.4; }
+  .entry-credits { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; text-align: right; white-space: nowrap; }
+  .used-check { display: flex; align-items: center; padding-top: 2px; }
+  .used-check input {
+    width: 17px; height: 17px; accent-color: var(--amber); cursor: pointer; margin: 0;
+  }
+  .del-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; padding: 4px 6px; border-radius: 6px; line-height: 1; }
+  .del-btn:hover { color: var(--red); background: rgba(217,108,86,0.1); }
+  .entry-side { display:flex; flex-direction:column; align-items:flex-end; gap:3px; min-width:110px; }
+  .entry-cost { font-family:'JetBrains Mono', monospace; font-size:11.5px; color:var(--green); white-space:nowrap; }
+  .entry-actions { display:flex; align-items:center; gap:3px; }
+  .archive-btn, .reopen-btn {
+    background:none; border:none; color:var(--muted); cursor:pointer; font-size:15px;
+    padding:4px 6px; border-radius:6px; line-height:1;
+  }
+  .archive-btn:hover { color:var(--amber); background:rgba(232,163,61,0.10); }
+  .reopen-btn:hover { color:var(--green); background:rgba(111,169,123,0.10); }
+
+  .archive-panel { margin-top:18px; }
+  .archive-episode {
+    border:1px solid var(--border); border-radius:9px; margin-top:10px; overflow:hidden; background:var(--bg);
+  }
+  .archive-summary {
+    width:100%; border:0; background:transparent; color:var(--text); cursor:pointer;
+    display:grid; grid-template-columns:1fr auto; gap:12px; text-align:left; padding:13px 14px;
+    font-family:inherit;
+  }
+  .archive-summary:hover { background:var(--surface-2); }
+  .archive-title { font-size:13.5px; font-weight:600; }
+  .archive-meta { color:var(--muted); font-size:11.5px; margin-top:3px; }
+  .archive-total { text-align:right; font-family:'JetBrains Mono', monospace; font-size:12px; }
+  .archive-total .usd { color:var(--green); margin-top:3px; }
+  .archive-details { display:none; border-top:1px solid var(--border); padding:0 14px; }
+  .archive-details.open { display:block; }
+  .archive-detail-row {
+    display:grid; grid-template-columns:1fr auto; gap:12px; padding:10px 0; border-bottom:1px solid var(--border);
+  }
+  .archive-detail-row:last-child { border-bottom:0; }
+  .archive-detail-main { font-size:12px; }
+  .archive-detail-main .date { color:var(--muted); font-size:11px; }
+  .archive-detail-main .shot { margin-top:4px; opacity:.8; }
+  .archive-detail-numbers { text-align:right; font-family:'JetBrains Mono', monospace; font-size:11.5px; white-space:nowrap; }
+  .archive-detail-numbers .usd { color:var(--green); margin-top:3px; }
+  .archive-footer { display:flex; justify-content:flex-end; padding:10px 14px; border-top:1px solid var(--border); }
+
+  .report-modal {
+    position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.66);
+    display:none; align-items:center; justify-content:center; padding:20px;
+  }
+  .report-modal.open { display:flex; }
+  .report-dialog {
+    width:min(460px,100%); background:var(--surface); border:1px solid var(--border);
+    border-radius:14px; padding:22px;
+  }
+  .report-dialog h2 { margin:0 0 6px; font-size:17px; }
+  .report-dialog p { color:var(--muted); font-size:12.5px; margin:0 0 18px; }
+  .report-option { display:flex; gap:9px; align-items:center; margin:10px 0; font-size:13.5px; }
+  .report-option input { width:auto; }
+  .report-episode-field { margin-top:14px; display:none; }
+  .report-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:20px; }
+  .secondary-btn {
+    background:none; border:1px solid var(--border); color:var(--text); border-radius:7px;
+    padding:9px 14px; cursor:pointer; font-family:inherit;
+  }
+  @media (max-width:560px) {
+    .entry { grid-template-columns:auto 1fr auto; }
+    .entry-side { min-width:95px; }
+  }
+
+
+  .purchase-item { display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: start; padding: 11px 0; border-bottom: 1px solid var(--border); }
+  .purchase-item:last-child { border-bottom: none; }
+  .purchase-item .name { font-size: 13.5px; font-weight: 500; }
+  .purchase-item .date { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  .purchase-item .credits { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; text-align: right; white-space: nowrap; }
+  .purchase-item .cost { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--green); text-align: right; white-space: nowrap; }
+
+  .empty { color: var(--muted); font-size: 13.5px; padding: 18px 0; text-align: center; }
+  .loading { color: var(--muted); font-size: 13px; padding: 20px 0; text-align: center; }
+
+
+  /* Acceso y permisos */
+  .login-screen {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 24px; background: var(--bg);
+  }
+  .login-card {
+    width: min(420px, 100%); background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 28px 24px;
+  }
+  .login-card h2 { margin: 0 0 6px; font-size: 20px; }
+  .login-card p { margin: 0 0 20px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+  .login-card .field { margin-bottom: 12px; }
+  .login-error { min-height: 18px; margin-top: 10px; color: var(--red); font-size: 12.5px; }
+  .login-status { min-height: 18px; margin-top: 10px; color: var(--muted); font-size: 12.5px; }
+  .login-top-actions { display:flex; justify-content:flex-end; margin-bottom:8px; }
+  .add-program-link {
+    background:none; border:0; color:var(--amber); cursor:pointer; font:inherit;
+    font-size:12.5px; font-weight:600; padding:4px 0;
+  }
+  .add-program-link:hover { text-decoration:underline; }
+  .program-modal {
+    position:fixed; inset:0; z-index:10020; background:rgba(0,0,0,.68);
+    display:none; align-items:center; justify-content:center; padding:20px;
+  }
+  .program-modal.open { display:flex; }
+  .program-dialog {
+    width:min(460px,100%); background:var(--surface); border:1px solid var(--border);
+    border-radius:14px; padding:22px;
+  }
+  .program-dialog h2 { margin:0 0 6px; font-size:17px; }
+  .program-dialog > p { margin:0 0 18px; color:var(--muted); font-size:12.5px; line-height:1.5; }
+  .program-dialog .field { margin-bottom:12px; }
+  .program-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:18px; }
+  .program-admin-step, .program-form-step { display:none; }
+  .program-admin-step.active, .program-form-step.active { display:block; }
+  .program-message { min-height:18px; margin-top:10px; font-size:12.5px; color:var(--muted); }
+  .program-message.error { color:var(--red); }
+  .program-message.ok { color:var(--green); }
+
+  .access-row { display: flex; align-items: center; gap: 8px; }
+  .sync-status { font-size: 11px; color: var(--muted); white-space: nowrap; align-self: center; }
+  .sync-status.ok { color: var(--green); }
+  .sync-status.error { color: var(--red); }
+  .role-badge {
+    border: 1px solid var(--border); color: var(--muted); border-radius: 999px;
+    padding: 5px 9px; font-size: 11px; white-space: nowrap;
+  }
+  .role-badge.admin { border-color: var(--amber); color: var(--amber); }
+  .logout-btn {
+    background: none; border: 1px solid var(--border); color: var(--muted);
+    height: 32px; padding: 0 10px; border-radius: 8px; cursor: pointer; font: inherit; font-size: 11.5px;
+  }
+  .logout-btn:hover { border-color: var(--amber); color: var(--amber); }
+
+
+  .password-wrap { position: relative; }
+  .password-wrap input { padding-right: 46px; width: 100%; }
+  .password-eye {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    width: 34px; height: 34px; border: 0; background: transparent;
+    color: var(--muted); cursor: pointer; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; line-height: 1;
+  }
+  .password-eye:hover { color: var(--text); background: var(--surface2); }
+
+
+  .required-mark { color:#c62828; font-weight:700; margin-left:2px; }
+  .field-error input, .field-error select, .field-error textarea { border-color:#c62828 !important; box-shadow:0 0 0 2px rgba(198,40,40,.10); }
+  .validation-summary { display:none; margin:0 0 14px; padding:10px 12px; border:1px solid #c62828; border-radius:8px; color:#a61b1b; background:#fff7f7; font-size:13px; }
+  .offline-banner { display:none; margin:12px 0; padding:10px 12px; border-radius:8px; background:#fff4df; border:1px solid #d79a22; color:#7a5200; font-size:13px; font-weight:600; }
+  .offline-mode .write-action { opacity:.55; cursor:not-allowed; }
+</style>
+
+  <!-- PWA -->
+  <meta name="theme-color" content="#111827">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Magnific">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+
+
+<style>
+  .login-brand-logo {
+    width: 112px;
+    height: 112px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto 18px auto;
+  }
+</style>
+
+</head>
+<body>
+
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <div class="login-top-actions">
+      <button id="openAddProgramBtn" class="add-program-link" type="button">＋ Añadir programa</button>
+    </div>
+    <img src="./logo-ccia.png" alt="CCIA" class="login-brand-logo">
+<h2>Contador de créditos — Magnific</h2>
+    <p>Introduce tu contraseña y selecciona el programa al que deseas acceder.</p>
+    <div class="field">
+      <label for="passwordInput">Contraseña</label>
+      <div class="password-wrap">
+        <input id="passwordInput" type="password" autocomplete="current-password" placeholder="Contraseña" minlength="8" maxlength="64" required />
+        <button id="passwordEye" class="password-eye" type="button" aria-label="Mostrar contraseña" title="Mostrar contraseña">👁</button>
+      </div>
+    </div>
+    <div class="field">
+      <label for="programSelect">Programa <span class="required-mark">*</span></label>
+      <select id="programSelect" required disabled>
+        <option value="">Cargando programas…</option>
+      </select>
+    </div>
+    <button id="loginBtn" class="add-btn full" type="button">Entrar</button>
+    <div id="loginStatus" class="login-status"></div>
+    <div id="loginError" class="login-error"></div>
+  </div>
+</div>
+
+<div id="programModal" class="program-modal" aria-hidden="true">
+  <div class="program-dialog" role="dialog" aria-modal="true" aria-labelledby="programModalTitle">
+    <h2 id="programModalTitle">Añadir programa</h2>
+    <p>Esta función requiere la contraseña de administrador.</p>
+
+    <div id="programAdminStep" class="program-admin-step active">
+      <div class="field">
+        <label for="programAdminPassword">Contraseña de administrador <span class="required-mark">*</span></label>
+        <div class="password-wrap">
+          <input id="programAdminPassword" type="password" autocomplete="current-password" minlength="8" maxlength="64" placeholder="Contraseña de administrador" />
+          <button id="programAdminEye" class="password-eye" type="button" aria-label="Mostrar contraseña" title="Mostrar contraseña">👁</button>
+        </div>
+      </div>
+      <div class="program-actions">
+        <button id="cancelProgramAdminBtn" class="secondary-btn" type="button">Cancelar</button>
+        <button id="verifyProgramAdminBtn" class="add-btn" type="button">Continuar</button>
+      </div>
+    </div>
+
+    <div id="programFormStep" class="program-form-step">
+      <div class="field">
+        <label for="newProgramName">Nombre <span class="required-mark">*</span></label>
+        <input id="newProgramName" type="text" maxlength="80" placeholder="Nombre del programa" />
+      </div>
+      <div class="field">
+        <label for="newProgramDescription">Descripción</label>
+        <textarea id="newProgramDescription" maxlength="300" placeholder="Descripción opcional"></textarea>
+      </div>
+      <div class="field">
+        <label for="newProgramTarget">Meta de episodios <span class="required-mark">*</span></label>
+        <input id="newProgramTarget" type="number" min="1" step="1" inputmode="numeric" placeholder="40" />
+      </div>
+      <div class="program-actions">
+        <button id="cancelProgramFormBtn" class="secondary-btn" type="button">Cancelar</button>
+        <button id="createProgramBtn" class="add-btn" type="button">Crear programa</button>
+      </div>
+    </div>
+
+    <div id="programMessage" class="program-message"></div>
+  </div>
+</div>
+
+<div class="wrap" id="mainWrap" style="display:none;">
+
+  <div class="masthead">
+    <div>
+      <img src="data:image/png;base64,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" alt="Fremantle" class="logo-img" />
+      <p>Programa: <strong id="currentProgramName">—</strong> · Seguimiento del consumo y las compras de créditos del Space</p>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <span id="syncStatus" class="sync-status" title="Sincronización automática con Google Sheets">● Sincronizando…</span>
+      <button class="report-btn" id="reportBtn" title="Generar reporte">Generar reporte</button>
+      <span id="roleBadge" class="role-badge">Usuario</span>
+      <button id="logoutBtn" class="logout-btn" type="button">Cambiar programa</button>
+      <button class="gear-btn" id="gearBtn" title="Ajustes">⚙</button>
+    </div>
+  </div>
+
+  <div class="settings" id="settingsPanel">
+    <div class="field">
+      <label for="initialUsedInput">Créditos ya usados antes de este registro</label>
+      <input type="number" id="initialUsedInput" min="0" step="1" />
+    </div>
+    <div class="field">
+      <label for="targetInput">Meta de episodios del programa</label>
+      <input type="number" id="targetInput" min="0" step="1" />
+    </div>
+    <p class="settings-note">Los créditos disponibles y las compras son globales. La meta de episodios pertenece únicamente al programa seleccionado.</p>
+  </div>
+
+  <div id="loadingMsg" class="loading">Cargando registros…</div>
+
+  <div id="appBody" style="display:none;">
+    <div id="offlineBanner" class="offline-banner">⚠ Sin conexión — Modo solo consulta. Los registros estarán disponibles nuevamente cuando se restablezca la conexión.</div>
+
+    <div class="hero">
+      <div class="hero-label">Créditos usados</div>
+      <div class="hero-number-row">
+        <span class="hero-number" id="usedNumber">0</span>
+        <span class="hero-of" id="poolLabel">de 0 comprados</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" id="barFill" style="width:0%"></div></div>
+      <div class="hero-sub" id="heroSub"></div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="k">Restantes</div>
+        <div class="v" id="statRemaining">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="k">Créditos comprados</div>
+        <div class="v" id="statPurchased">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="k">Episodios registrados</div>
+        <div class="v" id="statEpisodes">—</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header" id="purchasesHeader">
+        <div>
+          <h2>Compras de créditos</h2>
+          <p class="panel-sub">Cada recarga o plan que aporta créditos al Space</p>
+        </div>
+        <span class="chevron collapsed" id="purchasesChevron">▾</span>
+      </div>
+      <div class="panel-body collapsed" id="purchasesBody">
+        <div id="purchaseValidationSummary" class="validation-summary"></div>
+        <div class="form-row purchase">
+          <div class="field">
+            <label for="pLabel">Concepto <span class="required-mark">*</span></label>
+            <input type="text" id="pLabel" placeholder="Ej. Recarga de créditos" required autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="pDate">Fecha <span class="required-mark">*</span></label>
+            <input type="date" id="pDate" required />
+          </div>
+          <div class="field">
+            <label for="pCredits">Créditos <span class="required-mark">*</span></label>
+            <input type="number" id="pCredits" min="1" step="1" placeholder="2000000" required />
+          </div>
+          <div class="field">
+            <label for="pCurrency">Moneda <span class="required-mark">*</span></label>
+            <select id="pCurrency" required>
+              <option value="USD">USD</option>
+              <option value="MXN">MXN</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row" style="grid-template-columns: 1fr auto;">
+          <div class="field">
+            <label for="pCost">Costo <span class="required-mark">*</span></label>
+            <input type="number" id="pCost" min="0.01" step="0.01" placeholder="2180.80" required />
+          </div>
+          <button class="add-btn write-action" id="addPurchaseBtn" style="align-self:end;">Agregar compra</button>
+        </div>
+        <div id="purchasesList"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Registrar consumo</h2>
+      <p class="panel-sub" style="margin-bottom:14px;">Créditos usados por episodio, con descripción del plano</p>
+      <div id="entryValidationSummary" class="validation-summary"></div>
+      <div class="form-row">
+        <div class="field">
+          <label for="epName">Episodio <span class="required-mark">*</span></label>
+          <input type="text" id="epName" inputmode="numeric" maxlength="3" placeholder="000" autocomplete="off" required />
+        </div>
+        <div class="field">
+          <label for="epDate">Fecha <span class="required-mark">*</span></label>
+          <input type="date" id="epDate" required />
+        </div>
+        <div class="field">
+          <label for="epCredits">Créditos usados <span class="required-mark">*</span></label>
+          <input type="text" id="epCredits" inputmode="numeric" autocomplete="off" required />
+        </div>
+      </div>
+      <div class="form-row wide">
+        <div class="field">
+          <label for="epShot">Descripción de plano</label>
+          <textarea id="epShot" placeholder="Ej. Plano general, dolly-in sobre personaje, luz cálida de atardecer..."></textarea>
+        </div>
+      </div>
+      <button class="add-btn full write-action" id="addBtn">Agregar registro</button>
+    </div>
+
+    <div class="panel">
+      <div class="log-header">
+        <h2>Historial de consumo</h2>
+        <span class="log-count" id="logCount">0 registros</span>
+      </div>
+      <div id="entriesList"></div>
+    </div>
+
+    <div class="panel archive-panel">
+      <div class="log-header">
+        <div>
+          <h2>Episodios finalizados</h2>
+          <p class="panel-sub">Episodios archivados con todas sus generaciones, créditos y costos</p>
+        </div>
+        <span class="log-count" id="archiveCount">0 episodios</span>
+      </div>
+      <div id="archivedEpisodesList"></div>
+    </div>
+
+  </div>
+</div>
+
+<div id="reportModal" class="report-modal" aria-hidden="true">
+  <div class="report-dialog">
+    <h2>Generar reporte</h2>
+    <p>Selecciona si quieres consultar todo el proyecto o un episodio específico.</p>
+    <label class="report-option"><input type="radio" name="reportType" value="total" checked> Reporte total</label>
+    <label class="report-option"><input type="radio" name="reportType" value="episode"> Reporte por episodio</label>
+    <div class="report-episode-field" id="reportEpisodeField">
+      <label for="reportEpisodeSelect">Episodio</label>
+      <select id="reportEpisodeSelect"></select>
+    </div>
+    <div class="report-actions">
+      <button type="button" class="secondary-btn" id="cancelReportBtn">Cancelar</button>
+      <button type="button" class="add-btn" id="createReportBtn">Generar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const ENTRIES_KEY = 'credit-entries';
+  const PURCHASES_KEY = 'credit-purchases';
+  const SETTINGS_KEY = 'settings';
+  const PROGRAMS_KEY = 'programs';
+  const DEFAULT_SETTINGS = { target: 40, initialUsed: 4000000 };
+  const DEFAULT_PURCHASES = [
+    { id: 'seed-plan-pro', label: 'Plan Pro (créditos anuales, ya agotados)', date: '', credits: 4000000, cost: 39150, currency: 'MXN' },
+    { id: 'seed-recarga-1', label: 'Recarga de créditos', date: localDateISO(), credits: 2000000, cost: 2180.80, currency: 'USD' },
+  ];
+
+  let entries = [];
+  let purchases = [];
+  let settings = { ...DEFAULT_SETTINGS };
+  let programs = [];
+  let currentProgramId = '';
+
+  const $ = (id) => document.getElementById(id);
+
+  function fmtInt(n) { return Math.round(n).toLocaleString('es-MX'); }
+  function fmtCost(n, currency) {
+    const symbol = currency === 'USD' ? 'US$' : 'MX$';
+    return symbol + Number(n).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function escapeHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  // ======================================================
+  // GOOGLE APPS SCRIPT / GOOGLE SHEETS
+  // ======================================================
+  const API_URL = 'REPLACE_WITH_YOUR_APPS_SCRIPT_WEB_APP_URL';
+  let currentPassword = '';
+  let currentRole = null;
+  let syncTimer = null;
+  let syncInProgress = false;
+  let saveInProgress = 0;
+  let serverConnected = true;
+  const SYNC_INTERVAL_MS = 10000;
+
+  async function apiGet(key) {
+    const url = new URL(API_URL);
+    url.searchParams.set('password', currentPassword);
+    url.searchParams.set('key', key);
+    const response = await fetch(url.toString(), { method: 'GET', redirect: 'follow' });
+    if (!response.ok) throw new Error('Error HTTP ' + response.status);
+    const text = await response.text();
+    const data = JSON.parse(text);
+    if (data && data.error === 'unauthorized') throw new Error('unauthorized');
+    return data;
+  }
+
+  async function apiSave(key, value) {
+    saveInProgress++;
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        redirect: 'follow',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          password: currentPassword,
+          action: 'save',
+          key: key,
+          value: JSON.stringify(value)
+        })
+      });
+      if (!response.ok) throw new Error('Error HTTP ' + response.status);
+      const data = JSON.parse(await response.text());
+      if (!data.ok) throw new Error(data.error || 'No se pudo guardar');
+      return data;
+    } finally {
+      saveInProgress = Math.max(0, saveInProgress - 1);
+    }
+  }
+
+  async function login(password) {
+    const url = new URL(API_URL);
+    url.searchParams.set('password', password);
+    url.searchParams.set('action', 'login');
+    const response = await fetch(url.toString(), { method: 'GET', redirect: 'follow' });
+    if (!response.ok) throw new Error('Error HTTP ' + response.status);
+    return JSON.parse(await response.text());
+  }
+
+  async function apiGetWithPassword(key, password) {
+    const url = new URL(API_URL);
+    url.searchParams.set('password', password);
+    url.searchParams.set('key', key);
+    const response = await fetch(url.toString(), { method: 'GET', redirect: 'follow' });
+    if (!response.ok) throw new Error('Error HTTP ' + response.status);
+    const data = JSON.parse(await response.text());
+    if (data && data.error) throw new Error(data.error);
+    return data;
+  }
+
+  async function apiSaveWithPassword(key, value, password) {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        password: password,
+        action: 'save',
+        key: key,
+        value: JSON.stringify(value)
+      })
+    });
+    if (!response.ok) throw new Error('Error HTTP ' + response.status);
+    const data = JSON.parse(await response.text());
+    if (!data.ok) throw new Error(data.error || 'No se pudo guardar');
+    return data;
+  }
+
+  let pendingProgramAdminPassword = '';
+
+  function setProgramMessage(message, type = '') {
+    const el = $('programMessage');
+    el.textContent = message || '';
+    el.classList.remove('error', 'ok');
+    if (type) el.classList.add(type);
+  }
+
+  function openProgramModal() {
+    pendingProgramAdminPassword = '';
+    $('programAdminPassword').value = '';
+    $('newProgramName').value = '';
+    $('newProgramDescription').value = '';
+    $('newProgramTarget').value = '';
+    $('programAdminStep').classList.add('active');
+    $('programFormStep').classList.remove('active');
+    setProgramMessage('');
+    $('programModal').classList.add('open');
+    $('programModal').setAttribute('aria-hidden', 'false');
+    setTimeout(() => $('programAdminPassword').focus(), 0);
+  }
+
+  function closeProgramModal() {
+    pendingProgramAdminPassword = '';
+    $('programAdminPassword').value = '';
+    $('programModal').classList.remove('open');
+    $('programModal').setAttribute('aria-hidden', 'true');
+    setProgramMessage('');
+  }
+
+  async function verifyProgramAdmin() {
+    const password = $('programAdminPassword').value;
+    setProgramMessage('');
+
+    if (!password) {
+      setProgramMessage('Introduce la contraseña de administrador.', 'error');
+      return;
+    }
+    if (password.length < 8 || password.length > 64) {
+      setProgramMessage('La contraseña debe tener entre 8 y 64 caracteres.', 'error');
+      return;
+    }
+
+    $('verifyProgramAdminBtn').disabled = true;
+    setProgramMessage('Verificando acceso…');
+
+    try {
+      const result = await login(password);
+      if (!result.authorized || result.role !== 'admin') {
+        setProgramMessage('La contraseña no corresponde a un administrador.', 'error');
+        return;
+      }
+      pendingProgramAdminPassword = password;
+      $('programAdminPassword').value = '';
+      $('programAdminStep').classList.remove('active');
+      $('programFormStep').classList.add('active');
+      setProgramMessage('');
+      $('newProgramName').focus();
+    } catch (e) {
+      console.error(e);
+      setProgramMessage('No se pudo verificar el acceso con Google Apps Script.', 'error');
+    } finally {
+      $('verifyProgramAdminBtn').disabled = false;
+    }
+  }
+
+  function makeProgramId(name, existingPrograms) {
+    let base = String(name || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 50);
+
+    if (!base) base = 'programa';
+
+    const ids = new Set((existingPrograms || []).map((p) => String(p.id || '')));
+    if (!ids.has(base)) return base;
+
+    let n = 2;
+    while (ids.has(base + '-' + n)) n++;
+    return base + '-' + n;
+  }
+
+  async function createProgramFromLogin() {
+    if (!pendingProgramAdminPassword) {
+      setProgramMessage('Vuelve a verificar la contraseña de administrador.', 'error');
+      return;
+    }
+
+    const name = $('newProgramName').value.trim();
+    const description = $('newProgramDescription').value.trim();
+    const target = Number($('newProgramTarget').value);
+
+    if (!name) {
+      setProgramMessage('El nombre del programa es obligatorio.', 'error');
+      $('newProgramName').focus();
+      return;
+    }
+    if (!Number.isInteger(target) || target <= 0) {
+      setProgramMessage('La meta de episodios debe ser un número entero mayor que 0.', 'error');
+      $('newProgramTarget').focus();
+      return;
+    }
+
+    $('createProgramBtn').disabled = true;
+    setProgramMessage('Creando programa…');
+
+    try {
+      const fullPrograms = await apiGetWithPassword(PROGRAMS_KEY, pendingProgramAdminPassword);
+      if (!Array.isArray(fullPrograms)) throw new Error('invalid_programs');
+
+      const duplicateName = fullPrograms.some((p) =>
+        String(p.name || '').trim().toLocaleLowerCase('es') === name.toLocaleLowerCase('es')
+      );
+      if (duplicateName) {
+        setProgramMessage('Ya existe un programa con ese nombre.', 'error');
+        return;
+      }
+
+      const newProgram = {
+        id: makeProgramId(name, fullPrograms),
+        name: name,
+        description: description,
+        target: target,
+        active: true,
+        createdAt: localDateISO()
+      };
+
+      const updatedPrograms = [...fullPrograms, newProgram];
+      await apiSaveWithPassword(PROGRAMS_KEY, updatedPrograms, pendingProgramAdminPassword);
+
+      await loadPublicPrograms();
+      $('programSelect').value = newProgram.id;
+      setProgramMessage('Programa creado correctamente.', 'ok');
+
+      setTimeout(() => {
+        closeProgramModal();
+        $('passwordInput').focus();
+      }, 700);
+    } catch (e) {
+      console.error(e);
+      setProgramMessage('No se pudo crear el programa. Revisa la conexión e inténtalo nuevamente.', 'error');
+    } finally {
+      $('createProgramBtn').disabled = false;
+    }
+  }
+
+  async function loadPublicPrograms() {
+    const select = $('programSelect');
+    try {
+      const url = new URL(API_URL);
+      url.searchParams.set('action', 'public-programs');
+      const response = await fetch(url.toString(), { method: 'GET', redirect: 'follow' });
+      if (!response.ok) throw new Error('Error HTTP ' + response.status);
+      const data = JSON.parse(await response.text());
+      const list = Array.isArray(data) ? data : [];
+      select.innerHTML = '<option value="">Selecciona un programa</option>' + list.map((p) =>
+        '<option value="' + escapeHtml(p.id) + '">' + escapeHtml(p.name) + '</option>'
+      ).join('');
+      select.disabled = false;
+      $('loginStatus').textContent = list.length ? '' : 'No hay programas activos disponibles.';
+    } catch (e) {
+      console.error('No se pudieron cargar los programas', e);
+      select.innerHTML = '<option value="">No se pudieron cargar los programas</option>';
+      select.disabled = true;
+      $('loginStatus').textContent = 'No se pudo cargar la lista de programas.';
+    }
+  }
+
+  function getCurrentProgram() {
+    return programs.find((p) => p.id === currentProgramId) || null;
+  }
+
+  function getProgramEntries() {
+    return entries.filter((e) => e.programId === currentProgramId);
+  }
+
+  async function loadData() {
+    try {
+      const remoteEntries = await apiGet(ENTRIES_KEY);
+      entries = Array.isArray(remoteEntries) ? remoteEntries : [];
+    } catch (e) {
+      console.error('No se pudo cargar el historial', e);
+      entries = [];
+    }
+
+    try {
+      const remotePurchases = await apiGet(PURCHASES_KEY);
+      purchases = Array.isArray(remotePurchases) ? remotePurchases : null;
+    } catch (e) {
+      console.error('No se pudieron cargar las compras', e);
+      purchases = null;
+    }
+    if (!purchases) {
+      purchases = DEFAULT_PURCHASES;
+      await savePurchases();
+    }
+
+    try {
+      const remoteSettings = await apiGet(SETTINGS_KEY);
+      settings = remoteSettings && typeof remoteSettings === 'object'
+        ? { ...DEFAULT_SETTINGS, ...remoteSettings }
+        : { ...DEFAULT_SETTINGS };
+    } catch (e) {
+      console.error('No se pudo cargar la configuración', e);
+      settings = { ...DEFAULT_SETTINGS };
+    }
+
+    try {
+      const remotePrograms = await apiGet(PROGRAMS_KEY);
+      programs = Array.isArray(remotePrograms) ? remotePrograms : [];
+      if (!getCurrentProgram()) throw new Error('program_not_found');
+    } catch (e) {
+      console.error('No se pudieron cargar los programas', e);
+      programs = [];
+      throw e;
+    }
+  }
+
+  function setSyncStatus(type, text) {
+    const el = $('syncStatus');
+    if (!el) return;
+    el.classList.remove('ok', 'error');
+    if (type) el.classList.add(type);
+    el.textContent = text;
+  }
+
+  function setConnectionState(connected) {
+    serverConnected = connected;
+    const banner = $('offlineBanner');
+    if (banner) banner.style.display = connected ? 'none' : 'block';
+    document.body.classList.toggle('offline-mode', !connected);
+    document.querySelectorAll('.write-action').forEach((btn) => { btn.disabled = !connected; });
+  }
+
+  function ensureOnlineForWrite() {
+    if (serverConnected && navigator.onLine !== false) return true;
+    alert('Sin conexión. La aplicación está en modo solo consulta hasta recuperar la conexión con el servidor.');
+    return false;
+  }
+
+  function clearFieldErrors(ids, summaryId) {
+    ids.forEach((id) => { const el=$(id); if (el) el.closest('.field')?.classList.remove('field-error'); });
+    const summary=$(summaryId); if (summary) { summary.style.display='none'; summary.textContent=''; }
+  }
+
+  function showRequiredErrors(missing, summaryId) {
+    missing.forEach((item) => $(item.id)?.closest('.field')?.classList.add('field-error'));
+    const summary=$(summaryId);
+    if (summary) { summary.textContent='Faltan los siguientes campos obligatorios: ' + missing.map((x)=>x.label).join(', ') + '.'; summary.style.display='block'; }
+  }
+
+  function validateRecordDate(dateValue, fieldId, summaryId) {
+    const today=localDateISO();
+    if (dateValue > today) {
+      $(fieldId)?.closest('.field')?.classList.add('field-error');
+      const summary=$(summaryId); if(summary){ summary.textContent='No se permiten fechas futuras.'; summary.style.display='block'; }
+      return false;
+    }
+    if (dateValue < today) {
+      const shown = new Date(dateValue + 'T00:00:00').toLocaleDateString('es-MX');
+      return confirm('La fecha seleccionada (' + shown + ') es anterior a la fecha actual. ¿Estás seguro de que deseas realizar este registro con una fecha anterior?');
+    }
+    return true;
+  }
+
+  async function syncData() {
+    if (!currentPassword || syncInProgress || saveInProgress > 0 || document.hidden) return;
+    syncInProgress = true;
+    setSyncStatus('', '● Sincronizando…');
+    try {
+      const [remoteEntries, remotePurchases, remoteSettings, remotePrograms] = await Promise.all([
+        apiGet(ENTRIES_KEY),
+        apiGet(PURCHASES_KEY),
+        apiGet(SETTINGS_KEY),
+        apiGet(PROGRAMS_KEY)
+      ]);
+
+      if (Array.isArray(remoteEntries)) entries = remoteEntries;
+      if (Array.isArray(remotePurchases)) purchases = remotePurchases;
+      if (remoteSettings && typeof remoteSettings === 'object') {
+        settings = { ...DEFAULT_SETTINGS, ...remoteSettings };
+      }
+      if (Array.isArray(remotePrograms)) programs = remotePrograms;
+      render();
+      const now = new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      setConnectionState(true);
+      setSyncStatus('ok', '● Sincronizado · ' + now);
+    } catch (e) {
+      console.error('Error de sincronización automática', e);
+      setConnectionState(false);
+      setSyncStatus('error', '⚠ Sin conexión · Modo solo consulta · reintentando…');
+    } finally {
+      syncInProgress = false;
+    }
+  }
+
+  function startAutoSync() {
+    stopAutoSync();
+    syncTimer = setInterval(syncData, SYNC_INTERVAL_MS);
+  }
+
+  function stopAutoSync() {
+    if (syncTimer) clearInterval(syncTimer);
+    syncTimer = null;
+  }
+
+  async function saveEntries() {
+    try { await apiSave(ENTRIES_KEY, entries); }
+    catch (e) { setConnectionState(false); console.error('No se pudo guardar el historial', e); alert('No se pudo guardar el historial en Google Sheets. Se activó el modo solo consulta.'); }
+  }
+  async function savePurchases() {
+    try { await apiSave(PURCHASES_KEY, purchases); }
+    catch (e) { setConnectionState(false); console.error('No se pudieron guardar las compras', e); alert('No se pudieron guardar las compras en Google Sheets. Se activó el modo solo consulta.'); }
+  }
+  async function saveSettings() {
+    try { await apiSave(SETTINGS_KEY, settings); }
+    catch (e) { setConnectionState(false); console.error('No se pudo guardar la configuración', e); alert('No se pudo guardar la configuración en Google Sheets. Se activó el modo solo consulta.'); }
+  }
+  async function savePrograms() {
+    try { await apiSave(PROGRAMS_KEY, programs); }
+    catch (e) { setConnectionState(false); console.error('No se pudieron guardar los programas', e); alert('No se pudo guardar la configuración del programa en Google Sheets.'); }
+  }
+
+  function localDateISO(date = new Date()) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  function episodeKey(name) {
+    return (name || '').trim().toLowerCase() || 'sin nombre';
+  }
+
+  function groupByEpisode(list) {
+    const map = new Map();
+    list.forEach((e) => {
+      const key = episodeKey(e.name);
+      if (!map.has(key)) {
+        map.set(key, { label: (e.name || 'Episodio sin nombre').trim() || 'Episodio sin nombre', credits: 0, count: 0 });
+      }
+      const ep = map.get(key);
+      ep.credits += Number(e.credits || 0);
+      ep.count += 1;
+    });
+    return map;
+  }
+
+  function getApplicablePurchase(entryDate) {
+    const dated = purchases
+      .filter((p) => p.date && Number(p.credits) > 0 && Number(p.cost) > 0 && ['USD','MXN'].includes(String(p.currency || '').toUpperCase()))
+      .map((p, index) => ({ ...p, _index: index }))
+      .filter((p) => !entryDate || p.date <= entryDate)
+      .sort((a, b) => (a.date || '').localeCompare(b.date || '') || a._index - b._index);
+    return dated.length ? dated[dated.length - 1] : null;
+  }
+
+  function getGenerationCost(entry) {
+    const purchase = getApplicablePurchase(entry.date);
+    if (!purchase) return null;
+    return {
+      amount: Number(entry.credits || 0) * (Number(purchase.cost) / Number(purchase.credits)),
+      currency: String(purchase.currency || 'USD').toUpperCase()
+    };
+  }
+
+  function fmtGenerationCost(value) {
+    if (!value || !Number.isFinite(Number(value.amount))) return '—';
+    return fmtCost(value.amount, value.currency);
+  }
+
+  function sumGenerationCosts(list) {
+    const totals = { USD:0, MXN:0 };
+    list.forEach((e) => { const c=getGenerationCost(e); if(c && totals[c.currency] !== undefined) totals[c.currency]+=c.amount; });
+    return totals;
+  }
+
+  function fmtCostTotals(totals) {
+    const parts=[];
+    if (totals.USD) parts.push(fmtCost(totals.USD,'USD'));
+    if (totals.MXN) parts.push(fmtCost(totals.MXN,'MXN'));
+    return parts.length ? parts.join(' · ') : '—';
+  }
+
+  function getEpisodeEntries(key) {
+    return getProgramEntries().filter((e) => episodeKey(e.name) === key);
+  }
+
+  function isArchived(e) {
+    return e.archived === true;
+  }
+
+  function render() {
+    const pool = purchases.reduce((sum, p) => sum + Number(p.credits || 0), 0);
+    const initialUsed = Number(settings.initialUsed || 0);
+    const programEntries = getProgramEntries();
+    const programUsed = programEntries.reduce((sum, e) => sum + Number(e.credits || 0), 0);
+    const globalEntriesUsed = entries.reduce((sum, e) => sum + Number(e.credits || 0), 0);
+    const globalUsed = initialUsed + globalEntriesUsed;
+    const remaining = pool - globalUsed;
+    const pct = pool > 0 ? Math.min(100, (globalUsed / pool) * 100) : 0;
+    const over = globalUsed > pool;
+    const currentProgram = getCurrentProgram();
+    const programTarget = Number(currentProgram?.target || 0);
+
+    $('currentProgramName').textContent = currentProgram?.name || '—';
+    $('usedNumber').textContent = fmtInt(programUsed);
+    $('poolLabel').textContent = 'usados en ' + (currentProgram?.name || 'este programa');
+    $('barFill').style.width = pct + '%';
+    $('barFill').classList.toggle('over', over);
+
+    $('statRemaining').textContent = fmtInt(Math.max(0, remaining));
+    $('statRemaining').style.color = over ? 'var(--red)' : 'var(--text)';
+    $('statPurchased').textContent = fmtInt(pool);
+    const episodeGroups = groupByEpisode(programEntries);
+    $('statEpisodes').textContent = episodeGroups.size + (programTarget ? ' / ' + programTarget : '');
+
+    if (over) {
+      $('heroSub').textContent = 'Has superado los créditos comprados por ' + fmtInt(globalUsed - pool) + ' — se necesita otra recarga.';
+      $('heroSub').style.color = 'var(--red)';
+    } else {
+      $('heroSub').textContent = pct.toFixed(1) + '% del saldo global consumido · este programa ha usado ' + fmtInt(programUsed) + ' créditos';
+      $('heroSub').style.color = 'var(--muted)';
+    }
+
+    const activeEntries = programEntries.filter((e) => !isArchived(e));
+    const archivedEntries = programEntries.filter(isArchived);
+    $('logCount').textContent = activeEntries.length + (activeEntries.length === 1 ? ' registro' : ' registros');
+
+    const list = $('entriesList');
+    if (!activeEntries.length) {
+      list.innerHTML = '<div class="empty">No hay registros activos. Los episodios finalizados aparecen abajo.</div>';
+    } else {
+      const sorted = [...activeEntries].sort((a, b) => {
+        const byDate = (b.date || '').localeCompare(a.date || '');
+        if (byDate !== 0) return byDate;
+        return (b.id || '').localeCompare(a.id || '');
+      });
+      list.innerHTML = sorted.map((e) => {
+        const dateStr = e.date ? new Date(e.date + 'T00:00:00').toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+        const shot = e.shotDescription ? '<div class="shot">' + escapeHtml(e.shotDescription) + '</div>' : '';
+        const used = e.used !== false;
+        const generationCost = getGenerationCost(e);
+        return '<div class="entry' + (used ? '' : ' not-used') + '">' +
+          '<label class="used-check" title="¿La toma se utilizó?"><input type="checkbox" data-used="' + e.id + '" ' + (used ? 'checked' : '') + '></label>' +
+          '<div class="entry-main"><div class="name">' + escapeHtml(e.name || 'Sin nombre') + '</div><div class="date">' + dateStr + '</div>' + shot + '</div>' +
+          '<div class="entry-side">' +
+            '<div class="entry-credits">' + fmtInt(e.credits) + ' cr.</div>' +
+            '<div class="entry-cost">' + fmtGenerationCost(generationCost) + '</div>' +
+            '<div class="entry-actions">' +
+              '<button class="archive-btn" data-archive="' + e.id + '" title="Finalizar y guardar episodio">💾</button>' +
+              (currentRole === 'admin' ? '<button class="del-btn" data-del="' + e.id + '" title="Eliminar">✕</button>' : '') +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    const archivedMap = new Map();
+    archivedEntries.forEach((e) => {
+      const key = episodeKey(e.name);
+      if (!archivedMap.has(key)) archivedMap.set(key, []);
+      archivedMap.get(key).push(e);
+    });
+    $('archiveCount').textContent = archivedMap.size + (archivedMap.size === 1 ? ' episodio' : ' episodios');
+
+    const archivedList = $('archivedEpisodesList');
+    if (!archivedMap.size) {
+      archivedList.innerHTML = '<div class="empty">Todavía no hay episodios finalizados.</div>';
+    } else {
+      const groups = [...archivedMap.entries()].sort((a, b) => {
+        const aDate = Math.max(...a[1].map(e => Number(e.archivedAt || 0)));
+        const bDate = Math.max(...b[1].map(e => Number(e.archivedAt || 0)));
+        return bDate - aDate || b[0].localeCompare(a[0], 'es', { numeric:true });
+      });
+      archivedList.innerHTML = groups.map(([key, epEntries]) => {
+        const label = epEntries[0].name || 'Episodio sin nombre';
+        const credits = epEntries.reduce((sum, e) => sum + Number(e.credits || 0), 0);
+        const cost = sumGenerationCosts(epEntries);
+        const archivedAt = Math.max(...epEntries.map(e => Number(e.archivedAt || 0)));
+        const archivedDate = archivedAt ? new Date(archivedAt).toLocaleDateString('es-MX', { day:'2-digit', month:'short', year:'numeric' }) : '—';
+        const details = [...epEntries].sort((a,b) => (b.date || '').localeCompare(a.date || '') || (b.id || '').localeCompare(a.id || '')).map(e => {
+          const dateStr = e.date ? new Date(e.date + 'T00:00:00').toLocaleDateString('es-MX') : '—';
+          const shot = e.shotDescription ? '<div class="shot">' + escapeHtml(e.shotDescription) + '</div>' : '';
+          return '<div class="archive-detail-row">' +
+            '<div class="archive-detail-main"><div class="date">' + dateStr + (e.used === false ? ' · No utilizada' : ' · Utilizada') + '</div>' + shot + '</div>' +
+            '<div class="archive-detail-numbers"><div>' + fmtInt(e.credits) + ' cr.</div><div class="usd">' + fmtGenerationCost(getGenerationCost(e)) + '</div></div>' +
+          '</div>';
+        }).join('');
+        return '<div class="archive-episode">' +
+          '<button type="button" class="archive-summary" data-toggle-archive="' + escapeHtml(key) + '">' +
+            '<div><div class="archive-title">' + escapeHtml(label) + '</div><div class="archive-meta">Finalizado: ' + archivedDate + ' · ' + epEntries.length + ' generaciones</div></div>' +
+            '<div class="archive-total"><div>' + fmtInt(credits) + ' cr.</div><div class="usd">' + fmtCostTotals(cost) + '</div></div>' +
+          '</button>' +
+          '<div class="archive-details" data-archive-details="' + escapeHtml(key) + '">' + details +
+            (currentRole === 'admin' ? '<div class="archive-footer"><button type="button" class="secondary-btn reopen-btn" data-reopen="' + escapeHtml(key) + '">↩ Reabrir episodio</button></div>' : '') +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    const pList = $('purchasesList');
+    if (!purchases.length) {
+      pList.innerHTML = '<div class="empty">Sin compras registradas.</div>';
+    } else {
+      const sortedP = [...purchases].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      pList.innerHTML = sortedP.map((p) => {
+        const dateStr = p.date ? new Date(p.date + 'T00:00:00').toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+        return '<div class="purchase-item">' +
+          '<div><div class="name">' + escapeHtml(p.label) + '</div><div class="date">' + dateStr + '</div></div>' +
+          '<div class="credits">' + fmtInt(p.credits) + ' cr.</div>' +
+          '<div><div class="cost">' + fmtCost(p.cost, p.currency) + '</div>' + (currentRole === 'admin' ? '<button class="del-btn" data-delp="' + p.id + '" title="Eliminar">✕</button>' : '') + '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    $('targetInput').value = programTarget || '';
+    $('targetInput').disabled = currentRole !== 'admin';
+    $('initialUsedInput').value = settings.initialUsed || 0;
+    $('initialUsedInput').disabled = currentRole !== 'admin';
+  }
+
+  async function addEntry() {
+    if (!ensureOnlineForWrite()) return;
+    const name = $('epName').value.trim();
+    const date = $('epDate').value;
+    const creditsRaw = $('epCredits').value.replace(/\./g, '').trim();
+    const credits = Number(creditsRaw);
+    const shotDescription = $('epShot').value.trim();
+
+    clearFieldErrors(['epName','epDate','epCredits'], 'entryValidationSummary');
+    const missing=[];
+    if (!name) missing.push({id:'epName',label:'Episodio'});
+    if (!date) missing.push({id:'epDate',label:'Fecha'});
+    if (!creditsRaw) missing.push({id:'epCredits',label:'Créditos usados'});
+    if (missing.length) { showRequiredErrors(missing,'entryValidationSummary'); return; }
+    if (!/^\d{1,3}$/.test(name)) {
+      $('epName').closest('.field').classList.add('field-error');
+      const summary=$('entryValidationSummary'); summary.textContent='El episodio debe contener solo números y tener de 1 a 3 dígitos.'; summary.style.display='block'; return;
+    }
+    if (!Number.isInteger(credits) || credits <= 0) {
+      $('epCredits').closest('.field').classList.add('field-error');
+      const summary=$('entryValidationSummary'); summary.textContent='Los créditos usados deben ser un número entero mayor que 0.'; summary.style.display='block'; return;
+    }
+    if (!validateRecordDate(date,'epDate','entryValidationSummary')) return;
+
+    entries.push({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+      programId: currentProgramId, name, date, credits, shotDescription, used: true,
+    });
+    $('epName').value=''; $('epCredits').value=''; $('epShot').value='';
+    render();
+    await saveEntries();
+  }
+
+  async function archiveEpisodeFromEntry(id) {
+    if (!ensureOnlineForWrite()) return;
+    const entry = entries.find((e) => e.id === id);
+    if (!entry) return;
+    const key = episodeKey(entry.name);
+    const episodeEntries = entries.filter((e) => e.programId === currentProgramId && episodeKey(e.name) === key && !isArchived(e));
+    if (!episodeEntries.length) return;
+    const label = entry.name || 'Episodio sin nombre';
+    if (!confirm('¿Finalizar "' + label + '"? Se archivarán ' + episodeEntries.length + (episodeEntries.length === 1 ? ' registro.' : ' registros.') + ' Seguirán contando en créditos, costos y reportes.')) return;
+    const now = Date.now();
+    episodeEntries.forEach((e) => {
+      e.archived = true;
+      e.archivedAt = now;
+    });
+    render();
+    await saveEntries();
+  }
+
+  async function reopenEpisode(key) {
+    if (!ensureOnlineForWrite()) return;
+    if (currentRole !== 'admin') { alert('Solo el administrador puede reabrir episodios.'); return; }
+    const episodeEntries = entries.filter((e) => e.programId === currentProgramId && episodeKey(e.name) === key && isArchived(e));
+    if (!episodeEntries.length) return;
+    const label = episodeEntries[0].name || 'Episodio sin nombre';
+    if (!confirm('¿Reabrir "' + label + '"? Sus registros volverán al historial activo.')) return;
+    episodeEntries.forEach((e) => {
+      e.archived = false;
+      delete e.archivedAt;
+    });
+    render();
+    await saveEntries();
+  }
+
+  async function deleteEntry(id) {
+    if (!ensureOnlineForWrite()) return;
+    if (currentRole !== 'admin') { alert('Solo el administrador puede eliminar registros.'); return; }
+    const entry = entries.find((e) => e.id === id);
+    const label = entry ? (entry.name || 'este registro') : 'este registro';
+    if (!confirm('¿Eliminar "' + label + '" del historial? Esta acción no se puede deshacer.')) return;
+    entries = entries.filter((e) => e.id !== id);
+    render();
+    await saveEntries();
+  }
+
+  async function toggleEntryUsed(id, isUsed) {
+    if (!ensureOnlineForWrite()) return;
+    const entry = entries.find((e) => e.id === id);
+    if (!entry) return;
+    entry.used = isUsed;
+    render();
+    await saveEntries();
+  }
+
+  async function addPurchase() {
+    if (!ensureOnlineForWrite()) return;
+    const label=$('pLabel').value.trim();
+    const date=$('pDate').value;
+    const creditsRaw=$('pCredits').value.trim();
+    const credits=Number(creditsRaw);
+    const currency=$('pCurrency').value;
+    const costRaw=$('pCost').value.trim();
+    const cost=Number(costRaw);
+
+    clearFieldErrors(['pLabel','pDate','pCredits','pCurrency','pCost'],'purchaseValidationSummary');
+    const missing=[];
+    if(!label) missing.push({id:'pLabel',label:'Concepto'});
+    if(!date) missing.push({id:'pDate',label:'Fecha'});
+    if(!creditsRaw) missing.push({id:'pCredits',label:'Créditos'});
+    if(!currency) missing.push({id:'pCurrency',label:'Moneda'});
+    if(!costRaw) missing.push({id:'pCost',label:'Costo'});
+    if(missing.length){ showRequiredErrors(missing,'purchaseValidationSummary'); return; }
+
+    if(!/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$/.test(label)){
+      $('pLabel').closest('.field').classList.add('field-error');
+      const summary=$('purchaseValidationSummary'); summary.textContent='El concepto solo acepta letras del alfabeto latino y espacios.'; summary.style.display='block'; return;
+    }
+    if(!Number.isInteger(credits) || credits<=0){
+      $('pCredits').closest('.field').classList.add('field-error');
+      const summary=$('purchaseValidationSummary'); summary.textContent='Los créditos deben ser un número entero mayor que 0.'; summary.style.display='block'; return;
+    }
+    if(!Number.isFinite(cost) || cost<=0){
+      $('pCost').closest('.field').classList.add('field-error');
+      const summary=$('purchaseValidationSummary'); summary.textContent='El costo debe ser un número mayor que 0.'; summary.style.display='block'; return;
+    }
+    if(!['USD','MXN'].includes(currency)){
+      $('pCurrency').closest('.field').classList.add('field-error');
+      const summary=$('purchaseValidationSummary'); summary.textContent='Selecciona una moneda válida: USD o MXN.'; summary.style.display='block'; return;
+    }
+    if(!validateRecordDate(date,'pDate','purchaseValidationSummary')) return;
+
+    purchases.push({ id:Date.now().toString(36)+Math.random().toString(36).slice(2,7), label, date, credits, cost, currency });
+    $('pLabel').value=''; $('pCredits').value=''; $('pCost').value='';
+    render();
+    await savePurchases();
+  }
+
+  async function deletePurchase(id) {
+    if (!ensureOnlineForWrite()) return;
+    if (currentRole !== 'admin') { alert('Solo el administrador puede eliminar compras.'); return; }
+    const purchase = purchases.find((p) => p.id === id);
+    const label = purchase ? (purchase.label || 'esta compra') : 'esta compra';
+    if (!confirm('¿Eliminar "' + label + '" de las compras? Esta acción no se puede deshacer.')) return;
+    purchases = purchases.filter((p) => p.id !== id);
+    render();
+    await savePurchases();
+  }
+
+  function openReportModal() {
+    const episodeKeys = [...new Set(getProgramEntries().map((e) => episodeKey(e.name)))];
+    episodeKeys.sort((a,b) => {
+      const la = (getEpisodeEntries(a)[0]?.name || a);
+      const lb = (getEpisodeEntries(b)[0]?.name || b);
+      return la.localeCompare(lb, 'es', { numeric:true });
+    });
+    $('reportEpisodeSelect').innerHTML = episodeKeys.map((key) => {
+      const label = getEpisodeEntries(key)[0]?.name || key;
+      return '<option value="' + escapeHtml(key) + '">' + escapeHtml(label) + '</option>';
+    }).join('');
+    document.querySelector('input[name="reportType"][value="total"]').checked = true;
+    $('reportEpisodeField').style.display = 'none';
+    $('reportModal').classList.add('open');
+    $('reportModal').setAttribute('aria-hidden', 'false');
+  }
+
+  function closeReportModal() {
+    $('reportModal').classList.remove('open');
+    $('reportModal').setAttribute('aria-hidden', 'true');
+  }
+
+  function generateReport(type = 'total', selectedEpisodeKey = '') {
+    const programEntries = getProgramEntries();
+    const currentProgram = getCurrentProgram();
+    const programTarget = Number(currentProgram?.target || 0);
+    const reportEntries = type === 'episode'
+      ? programEntries.filter((e) => episodeKey(e.name) === selectedEpisodeKey)
+      : [...programEntries];
+
+    if (type === 'episode' && !reportEntries.length) {
+      alert('No hay registros para ese episodio.');
+      return;
+    }
+
+    const pool = purchases.reduce((sum, p) => sum + Number(p.credits || 0), 0);
+    const initialUsed = Number(settings.initialUsed || 0);
+    const allEntriesUsed = entries.reduce((sum, e) => sum + Number(e.credits || 0), 0);
+    const allUsed = initialUsed + allEntriesUsed;
+    const programUsed = programEntries.reduce((sum, e) => sum + Number(e.credits || 0), 0);
+    const remaining = pool - allUsed;
+    const pct = pool > 0 ? Math.min(100, (allUsed / pool) * 100) : 0;
+    const today = new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' });
+
+    const sortedEntries = [...reportEntries].sort((a, b) => (a.date || '').localeCompare(b.date || '') || (a.id || '').localeCompare(b.id || ''));
+    const sortedPurchases = [...purchases].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+    const episodeGroups = groupByEpisode(reportEntries);
+    const episodeCount = episodeGroups.size;
+    const reportCredits = reportEntries.reduce((sum, e) => sum + Number(e.credits || 0), 0);
+    const avgPerEpisode = episodeCount ? reportCredits / episodeCount : 0;
+    const totalGenerationCost = sumGenerationCosts(reportEntries);
+
+    const purchaseRows = sortedPurchases.map((p) => {
+      const dateStr = p.date ? new Date(p.date + 'T00:00:00').toLocaleDateString('es-MX') : '—';
+      return '<tr><td>' + escapeHtml(p.label) + '</td><td class="center">' + dateStr + '</td><td class="num">' + fmtInt(p.credits) + '</td><td class="num">' + fmtCost(p.cost, p.currency) + '</td><td class="center">' + escapeHtml(p.currency || '—') + '</td></tr>';
+    }).join('') || '<tr><td colspan="5" class="empty-row">Sin compras registradas</td></tr>';
+
+    const currentEpisodeRows = [...episodeGroups.entries()]
+      .sort((a, b) => a[1].label.localeCompare(b[1].label, 'es', { numeric: true }))
+      .map(([key, ep]) => {
+        const epEntries = reportEntries.filter((e) => episodeKey(e.name) === key);
+        const epCost = sumGenerationCosts(epEntries);
+        const status = epEntries.length && epEntries.every(isArchived) ? 'Finalizado' : 'Activo';
+        return '<tr><td class="center">' + escapeHtml(ep.label) + '</td><td class="center">' + status + '</td><td class="num">' + ep.count + '</td><td class="num">' + fmtInt(ep.credits) + '</td><td class="num">' + fmtCostTotals(epCost) + '</td></tr>';
+      }).join('');
+    const episodeRows = currentEpisodeRows;
+
+    // Reporte total: agrupar generaciones por episodio y ordenar episodios numéricamente.
+    // Reporte por episodio: conservar una sola tabla, ordenada por fecha.
+    let entryRows = '';
+    let groupedEntrySections = '';
+
+    if (type === 'total') {
+      const orderedGroups = [...episodeGroups.entries()]
+        .sort((a, b) => a[1].label.localeCompare(b[1].label, 'es', { numeric: true }));
+
+      groupedEntrySections = orderedGroups.map(([key, ep]) => {
+        const epEntries = reportEntries
+          .filter((e) => episodeKey(e.name) === key)
+          .sort((a, b) => (a.date || '').localeCompare(b.date || '') || (a.id || '').localeCompare(b.id || ''));
+
+        const rows = epEntries.map((e) => {
+          const dateStr = e.date ? new Date(e.date + 'T00:00:00').toLocaleDateString('es-MX') : '—';
+          const usedLabel = e.used !== false ? 'Sí' : 'No';
+          const status = isArchived(e) ? 'Finalizado' : 'Activo';
+          return '<tr><td class="center">' + dateStr + '</td><td class="num">' + fmtInt(e.credits) + '</td><td class="num">' + fmtGenerationCost(getGenerationCost(e)) + '</td><td class="center">' + usedLabel + '</td><td class="center">' + status + '</td><td>' + escapeHtml(e.shotDescription || '—') + '</td></tr>';
+        }).join('');
+
+        const epCost = sumGenerationCosts(epEntries);
+        const epCredits = epEntries.reduce((sum, e) => sum + Number(e.credits || 0), 0);
+
+        return '<h2>Episodio ' + escapeHtml(ep.label) + '</h2>' +
+          '<p class="sub">' + epEntries.length + ' generaciones · ' + fmtInt(epCredits) + ' créditos · ' + fmtCostTotals(epCost) + '</p>' +
+          '<table><thead><tr><th>Fecha</th><th>Créditos</th><th>Costo generación</th><th>Usada</th><th>Estado</th><th>Descripción de plano</th></tr></thead><tbody>' + rows + '</tbody></table>';
+      }).join('') || '<p class="empty-row">Sin registros de consumo</p>';
+    } else {
+      entryRows = sortedEntries.map((e) => {
+        const dateStr = e.date ? new Date(e.date + 'T00:00:00').toLocaleDateString('es-MX') : '—';
+        const usedLabel = e.used !== false ? 'Sí' : 'No';
+        const status = isArchived(e) ? 'Finalizado' : 'Activo';
+        return '<tr><td class="center">' + escapeHtml(e.name || 'Sin nombre') + '</td><td class="center">' + dateStr + '</td><td class="num">' + fmtInt(e.credits) + '</td><td class="num">' + fmtGenerationCost(getGenerationCost(e)) + '</td><td class="center">' + usedLabel + '</td><td class="center">' + status + '</td><td>' + escapeHtml(e.shotDescription || '—') + '</td></tr>';
+      }).join('') || '<tr><td colspan="7" class="empty-row">Sin registros de consumo</td></tr>';
+    }
+
+    const selectedLabel = type === 'episode' ? (reportEntries[0].name || 'Episodio sin nombre') : '';
+    const title = type === 'episode' ? 'Reporte — ' + (currentProgram?.name || 'Programa') + ' — ' + selectedLabel : 'Reporte — ' + (currentProgram?.name || 'Programa') + ' — Magnific';
+    const summaryHtml = type === 'episode'
+      ? '<div class="summary four">' +
+          '<div class="card"><div class="k">Generaciones</div><div class="v">' + reportEntries.length + '</div></div>' +
+          '<div class="card"><div class="k">Créditos utilizados</div><div class="v">' + fmtInt(reportCredits) + '</div></div>' +
+          '<div class="card"><div class="k">Costo total</div><div class="v">' + fmtCostTotals(totalGenerationCost) + '</div></div>' +
+          '<div class="card"><div class="k">Promedio/generación</div><div class="v">' + fmtInt(reportEntries.length ? reportCredits / reportEntries.length : 0) + ' cr.</div></div>' +
+        '</div>'
+      : '<div class="summary">' +
+          '<div class="card"><div class="k">Créditos usados por el programa</div><div class="v">' + fmtInt(programUsed) + '</div></div>' +
+          '<div class="card"><div class="k">Créditos comprados</div><div class="v">' + fmtInt(pool) + '</div></div>' +
+          '<div class="card"><div class="k">Restantes</div><div class="v">' + fmtInt(Math.max(0, remaining)) + '</div></div>' +
+          '<div class="card"><div class="k">Episodios registrados</div><div class="v">' + groupByEpisode(programEntries).size + (programTarget ? ' / ' + programTarget : '') + '</div></div>' +
+          '<div class="card"><div class="k">Costo generaciones</div><div class="v">' + fmtCostTotals(totalGenerationCost) + '</div></div>' +
+        '</div>';
+
+    const historicalCostSummaryHtml = type === 'total'
+      ? '<div class="historical-summary"><div><div class="historical-k">Costo total del proyecto</div><div class="historical-v">' + fmtCostTotals(totalGenerationCost) + '</div></div></div>'
+      : '';
+
+    const reportHtml = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">' +
+      '<title>' + escapeHtml(title) + '</title><style>' +
+      "body{font-family:'Space Grotesk',Arial,sans-serif;color:#1C1B1A;max-width:900px;margin:0 auto;padding:36px 28px;}" +
+      'h1{font-size:21px;margin:0 0 4px}.sub{color:#65625C;font-size:13px;margin:0 0 22px}' +
+      '.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:28px}.summary.four{grid-template-columns:repeat(4,1fr)}' +
+      '.card{border:1px solid #DAD7D0;border-radius:8px;padding:12px 14px}.card .k{font-size:10.5px;color:#65625C;margin-bottom:5px}.card .v{font-family:monospace;font-size:15px;font-weight:600}' +
+      '.historical-summary{border:1px solid #DAD7D0;border-radius:8px;padding:14px 16px;margin:-14px 0 28px;display:flex;align-items:center;justify-content:space-between;gap:20px;background:#F7F5F0}.historical-k{font-size:11px;color:#65625C;margin-bottom:5px}.historical-v{font-family:monospace;font-size:18px;font-weight:700}.historical-detail{font-size:11.5px;color:#65625C;text-align:right;max-width:360px}' +
+      'h2{font-size:14.5px;margin:26px 0 10px;border-bottom:1px solid #DAD7D0;padding-bottom:6px}' +
+      'table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:center;font-weight:600;color:#65625C;font-size:10.5px;padding:6px 7px;border-bottom:1px solid #1C1B1A}' +
+      'td{padding:7px;border-bottom:1px solid #EAE7E0;vertical-align:top}td.num{text-align:center;font-family:monospace;white-space:nowrap}td.center{text-align:center}.historical-row{background:#F7F5F0}.report-note{font-size:11.5px;color:#65625C;background:#F7F5F0;border-left:3px solid #DAD7D0;padding:9px 11px;margin:8px 0 18px}.empty-row{color:#98958F;text-align:center;padding:14px}' +
+      '.bar-outer{height:7px;background:#EAE7E0;border-radius:5px;overflow:hidden;margin:8px 0 4px}.bar-inner{height:100%;background:#E8A33D}' +
+      '@media print{body{padding:0}}@media(max-width:700px){.summary,.summary.four{grid-template-columns:repeat(2,1fr)}.historical-summary{display:block}.historical-detail{text-align:left;margin-top:8px}}' +
+      '</style></head><body><h1>' + escapeHtml(title) + '</h1><p class="sub">Generado el ' + today + '</p>' +
+      summaryHtml +
+      historicalCostSummaryHtml +
+      (type === 'total'
+        ? '<div class="bar-outer"><div class="bar-inner" style="width:' + pct.toFixed(1) + '%"></div></div><p class="sub">' + pct.toFixed(1) + '% de la bolsa global de créditos consumido</p>' +
+          '<h2>Desglose por episodio</h2><p class="sub">Promedio general: ' + fmtInt(avgPerEpisode) + ' créditos por episodio</p>' +
+          '<table><thead><tr><th>Episodio</th><th>Estado</th><th>Generaciones</th><th>Créditos usados</th><th>Costo</th></tr></thead><tbody>' + episodeRows + '</tbody></table>' +
+          '<p class="report-note">Los créditos comprados y el saldo restante corresponden a la bolsa global compartida entre todos los programas.</p>'
+        : '') +
+      (type === 'total'
+        ? '<h2>Generaciones agrupadas por episodio</h2>' + groupedEntrySections
+        : '<h2>Generaciones del episodio</h2><table><thead><tr><th>Episodio</th><th>Fecha</th><th>Créditos</th><th>Costo generación</th><th>Usada</th><th>Estado</th><th>Descripción de plano</th></tr></thead><tbody>' + entryRows + '</tbody></table>') +
+      '</body></html>';
+
+    const reportWindow = window.open('', '_blank');
+    if (!reportWindow) {
+      alert('El navegador bloqueó la ventana del reporte. Permite ventanas emergentes e inténtalo de nuevo.');
+      return;
+    }
+    reportWindow.document.open();
+    reportWindow.document.write(reportHtml);
+    reportWindow.document.close();
+    reportWindow.focus();
+    setTimeout(() => { reportWindow.print(); }, 300);
+  }
+
+  function togglePurchasesPanel() {
+    $('purchasesBody').classList.toggle('collapsed');
+    $('purchasesChevron').classList.toggle('collapsed');
+  }
+
+  function formatThousandsInput(value) {
+    const digits = String(value || '').replace(/\D/g, '');
+    return digits ? digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
+  }
+
+  function bindEvents() {
+    // Episodio: solo números, máximo 3 dígitos.
+    $('epName').addEventListener('input', (ev) => {
+      ev.target.value = ev.target.value.replace(/\D/g, '').slice(0, 3);
+      ev.target.setCustomValidity('');
+    });
+
+    // Créditos: solo números y separación automática de miles con puntos.
+    $('epCredits').addEventListener('input', (ev) => {
+      ev.target.value = formatThousandsInput(ev.target.value);
+      ev.target.setCustomValidity('');
+    });
+    $('epDate').addEventListener('input', (ev) => ev.target.setCustomValidity(''));
+
+    $('addBtn').addEventListener('click', addEntry);
+    $('addPurchaseBtn').addEventListener('click', addPurchase);
+
+    $('entriesList').addEventListener('click', (ev) => {
+      const archiveBtn = ev.target.closest('[data-archive]');
+      if (archiveBtn) { archiveEpisodeFromEntry(archiveBtn.getAttribute('data-archive')); return; }
+      const btn = ev.target.closest('[data-del]');
+      if (btn) deleteEntry(btn.getAttribute('data-del'));
+    });
+
+    $('archivedEpisodesList').addEventListener('click', (ev) => {
+      const toggle = ev.target.closest('[data-toggle-archive]');
+      if (toggle) {
+        const key = toggle.getAttribute('data-toggle-archive');
+        const details = [...document.querySelectorAll('[data-archive-details]')].find(el => el.getAttribute('data-archive-details') === key);
+        if (details) details.classList.toggle('open');
+        return;
+      }
+      const reopen = ev.target.closest('[data-reopen]');
+      if (reopen) reopenEpisode(reopen.getAttribute('data-reopen'));
+    });
+    $('entriesList').addEventListener('change', (ev) => {
+      const chk = ev.target.closest('[data-used]');
+      if (chk) toggleEntryUsed(chk.getAttribute('data-used'), chk.checked);
+    });
+    $('purchasesList').addEventListener('click', (ev) => {
+      const btn = ev.target.closest('[data-delp]');
+      if (btn) deletePurchase(btn.getAttribute('data-delp'));
+    });
+
+    $('gearBtn').addEventListener('click', () => {
+      $('settingsPanel').classList.toggle('open');
+    });
+
+    $('purchasesHeader').addEventListener('click', togglePurchasesPanel);
+    $('reportBtn').addEventListener('click', openReportModal);
+    document.querySelectorAll('input[name="reportType"]').forEach((radio) => {
+      radio.addEventListener('change', () => {
+        $('reportEpisodeField').style.display = radio.value === 'episode' && radio.checked ? 'block' :
+          (document.querySelector('input[name="reportType"]:checked').value === 'episode' ? 'block' : 'none');
+      });
+    });
+    $('cancelReportBtn').addEventListener('click', closeReportModal);
+    $('reportModal').addEventListener('click', (ev) => { if (ev.target === $('reportModal')) closeReportModal(); });
+    $('createReportBtn').addEventListener('click', () => {
+      const type = document.querySelector('input[name="reportType"]:checked').value;
+      const key = $('reportEpisodeSelect').value;
+      closeReportModal();
+      generateReport(type, key);
+    });
+
+    $('targetInput').addEventListener('change', async () => {
+      if (!ensureOnlineForWrite()) return;
+      if (currentRole !== 'admin') { alert('Solo el administrador puede modificar la meta del programa.'); render(); return; }
+      const program = getCurrentProgram();
+      if (!program) return;
+      const target = Number($('targetInput').value);
+      if (!Number.isInteger(target) || target <= 0) { alert('La meta debe ser un número entero mayor que 0.'); render(); return; }
+      program.target = target;
+      render();
+      await savePrograms();
+    });
+    $('initialUsedInput').addEventListener('change', async () => {
+      if (!ensureOnlineForWrite()) return;
+      if (currentRole !== 'admin') { alert('Solo el administrador puede modificar los créditos iniciales globales.'); render(); return; }
+      settings.initialUsed = Number($('initialUsedInput').value) || 0;
+      render();
+      await saveSettings();
+    });
+  }
+
+  async function startApp() {
+    $('epDate').value = localDateISO();
+    $('pDate').value = localDateISO();
+    $('pDate').max = localDateISO();
+    $('epDate').max = localDateISO();
+    $('loadingMsg').style.display = 'block';
+    $('loadingMsg').textContent = 'Cargando registros desde Google Sheets…';
+    await loadData();
+    render();
+    $('loadingMsg').style.display = 'none';
+    $('appBody').style.display = 'block';
+    setSyncStatus('ok', '● Sincronizado · ahora');
+    startAutoSync();
+  }
+
+  async function handleLogin() {
+    const password = $('passwordInput').value;
+    const selectedProgramId = $('programSelect').value;
+    $('loginError').textContent = '';
+    if (!password) {
+      $('loginError').textContent = 'Introduce una contraseña.';
+      return;
+    }
+    if (!selectedProgramId) {
+      $('loginError').textContent = 'Selecciona un programa.';
+      return;
+    }
+    if (password.length < 8 || password.length > 64) {
+      $('loginError').textContent = 'La contraseña debe tener entre 8 y 64 caracteres.';
+      return;
+    }
+
+    $('loginBtn').disabled = true;
+    $('loginStatus').textContent = 'Verificando acceso…';
+    try {
+      const result = await login(password);
+      if (!result.authorized || !result.role) {
+        $('loginError').textContent = 'Contraseña incorrecta.';
+        $('loginStatus').textContent = '';
+        return;
+      }
+
+      currentPassword = password;
+      currentRole = result.role;
+      currentProgramId = selectedProgramId;
+      setConnectionState(true);
+      $('passwordInput').value = '';
+      $('roleBadge').textContent = currentRole === 'admin' ? 'Administrador' : 'Usuario';
+      $('roleBadge').classList.toggle('admin', currentRole === 'admin');
+      $('loginScreen').style.display = 'none';
+      $('mainWrap').style.display = 'block';
+      await startApp();
+    } catch (e) {
+      console.error(e);
+      $('loginError').textContent = 'No se pudo conectar con Google Apps Script. Revisa la implementación y vuelve a intentarlo.';
+      $('loginStatus').textContent = '';
+    } finally {
+      $('loginBtn').disabled = false;
+    }
+  }
+
+  function logout() {
+    stopAutoSync();
+    currentPassword = '';
+    currentRole = null;
+    currentProgramId = '';
+    entries = [];
+    purchases = [];
+    settings = { ...DEFAULT_SETTINGS };
+    programs = [];
+    $('appBody').style.display = 'none';
+    $('mainWrap').style.display = 'none';
+    $('loginScreen').style.display = 'flex';
+    $('loginStatus').textContent = '';
+    $('loginError').textContent = '';
+    loadPublicPrograms();
+    $('passwordInput').focus();
+  }
+
+  function init() {
+    bindEvents();
+    loadPublicPrograms();
+
+    $('openAddProgramBtn').addEventListener('click', openProgramModal);
+    $('cancelProgramAdminBtn').addEventListener('click', closeProgramModal);
+    $('cancelProgramFormBtn').addEventListener('click', closeProgramModal);
+    $('verifyProgramAdminBtn').addEventListener('click', verifyProgramAdmin);
+    $('createProgramBtn').addEventListener('click', createProgramFromLogin);
+    $('programModal').addEventListener('click', (ev) => {
+      if (ev.target === $('programModal')) closeProgramModal();
+    });
+    $('programAdminPassword').addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter') verifyProgramAdmin();
+    });
+    $('newProgramTarget').addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter') createProgramFromLogin();
+    });
+    $('programAdminEye').addEventListener('click', () => {
+      const input = $('programAdminPassword');
+      const showing = input.type === 'text';
+      input.type = showing ? 'password' : 'text';
+      $('programAdminEye').textContent = showing ? '👁' : '🙈';
+      $('programAdminEye').setAttribute('aria-label', showing ? 'Mostrar contraseña' : 'Ocultar contraseña');
+      $('programAdminEye').setAttribute('title', showing ? 'Mostrar contraseña' : 'Ocultar contraseña');
+      input.focus();
+    });
+
+    $('loginBtn').addEventListener('click', handleLogin);
+    $('passwordEye').addEventListener('click', () => {
+      const input = $('passwordInput');
+      const showing = input.type === 'text';
+      input.type = showing ? 'password' : 'text';
+      $('passwordEye').textContent = showing ? '👁' : '🙈';
+      $('passwordEye').setAttribute('aria-label', showing ? 'Mostrar contraseña' : 'Ocultar contraseña');
+      $('passwordEye').setAttribute('title', showing ? 'Mostrar contraseña' : 'Ocultar contraseña');
+      input.focus();
+    });
+    $('passwordInput').addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter') handleLogin();
+    });
+    $('logoutBtn').addEventListener('click', logout);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && currentPassword) syncData();
+    });
+    window.addEventListener('online', () => { if (currentPassword) syncData(); });
+    window.addEventListener('offline', () => setSyncStatus('error', '⚠ Sin conexión · reintentando…'));
+    $('passwordInput').focus();
+  }
+
+  init();
+})();
+
+  window.addEventListener('offline', () => { setConnectionState(false); setSyncStatus('error','⚠ Sin conexión · Modo solo consulta'); });
+  window.addEventListener('online', () => { if (currentPassword) syncData(); });
+
+  ['epName','epDate','epCredits'].forEach((id)=>$(id)?.addEventListener('input',()=>{ $(id).closest('.field')?.classList.remove('field-error'); }));
+  ['pLabel','pDate','pCredits','pCurrency','pCost'].forEach((id)=>$(id)?.addEventListener('input',()=>{ $(id).closest('.field')?.classList.remove('field-error'); }));
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js')
+        .catch(err => console.warn('Service Worker no pudo registrarse:', err));
+    });
+  }
+</script>
+</body>
+</html>
