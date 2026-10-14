@@ -224,4 +224,4 @@ Observaciones:
 
 ---
 
-**Nota para reclutadores:** este repositorio muestra un proyecto propio desarrollado y sometido a verificaciones manuales iterativas. El plan distingue explícitamente verificaciones observadas, pruebas aún no ejecutadas formalmente y oportunidades de automatización.
+**Nota:** este repositorio muestra un proyecto propio desarrollado y sometido a verificaciones manuales iterativas. El plan distingue explícitamente verificaciones observadas, pruebas aún no ejecutadas formalmente y oportunidades de automatización.
